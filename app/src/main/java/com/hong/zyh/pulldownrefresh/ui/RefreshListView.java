@@ -15,12 +15,18 @@ import android.widget.TextView;
 
 import com.hong.zyh.pulldownrefresh.R;
 
+import java.text.SimpleDateFormat;
+import java.util.logging.SimpleFormatter;
+
 /**
  * Created by shuaihong on 2019/2/28.
  * 包含下拉刷新的自定义listview
  */
 
 public class RefreshListView extends ListView {
+
+    //下拉刷新自定义的接口类
+    OnRefreshListenr onRefreshListenr;
 
     private View layout_header_list;
     private float downY;
@@ -45,6 +51,7 @@ public class RefreshListView extends ListView {
     private TextView tv_title;
     //刷新描述
     private TextView tv_desc_last_refresh;
+    private String time;
 
     public RefreshListView(Context context) {
         super(context);
@@ -194,11 +201,15 @@ public class RefreshListView extends ListView {
                 break;
             //正在刷新
             case REFRESHING:
-
                 mArrowView.clearAnimation();
                 mArrowView.setVisibility(View.INVISIBLE);
                 pb_loadding.setVisibility(View.VISIBLE);
                 tv_title.setText("正在刷新....");
+
+                //刷新的时候需要执行监听的刷新的动作
+                if(onRefreshListenr!=null){
+                    onRefreshListenr.onRefresh();
+                }
                 break;
             default:
                 break;
@@ -221,5 +232,37 @@ public class RefreshListView extends ListView {
         rotateDownAnim.setDuration(300);
         // 动画停留在结束位置
         rotateDownAnim.setFillAfter(true);
+    }
+
+    /**
+     * 执行外监听的方法后执行的代码
+     * 也就是刷新完毕后执行的方法
+     */
+    public void onRefreshComplete() {
+        // 下拉刷新
+        currentState = PULL_TO_REFRESH;
+        tv_title.setText("下拉刷新"); // 切换文本
+        layout_header_list.setPadding(0, -measuredHeight, 0, 0);// 隐藏头布局
+        pb_loadding.setVisibility(View.INVISIBLE);
+        mArrowView.setVisibility(View.VISIBLE);
+        String time = getTime();
+        tv_desc_last_refresh.setText("最后刷新时间: " + time);
+    }
+
+    public String getTime() {
+        long currentTimeMillis = System.currentTimeMillis();
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        return format.format(currentTimeMillis);
+    }
+
+    /**
+     * 下落刷新接口--监听的类
+     */
+    public interface OnRefreshListenr {
+        void onRefresh();
+    }
+
+    public void setRefreshListener(OnRefreshListenr onRefreshListenr) {
+        this.onRefreshListenr = onRefreshListenr;
     }
 }
