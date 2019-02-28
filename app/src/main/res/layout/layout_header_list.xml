@@ -9,14 +9,17 @@
         android:layout_height="50dp">
 
         <ImageView
+            android:id="@+id/iv_arrow"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:src="@drawable/common_listview_headview_red_arrow" />
 
         <ProgressBar
+            android:id="@+id/pb_loadding"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:visibility="invisible"
             android:indeterminateDrawable="@drawable/shape_progress"
             android:layout_gravity="center" />
     </FrameLayout>
@@ -26,6 +29,7 @@
         android:gravity="center_horizontal"
         android:orientation="vertical">
         <TextView
+            android:id="@+id/tv_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="下拉刷新"
@@ -33,6 +37,7 @@
             android:textColor="#F00"
             android:layout_marginTop="5dp"/>
         <TextView
+            android:id="@+id/tv_desc_last_refresh"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="最后刷新时间：2019-02-28"
