@@ -65,6 +65,33 @@ public class MainActivity extends Activity {
                     }
                 }.start();
             }
+
+            @Override
+            public void onLoadMore() {
+                new Thread(){
+                    public void run() {
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+
+                        listDatas.add("我是加载更多出来的数据!1");
+                        listDatas.add("我是加载更多出来的数据!2");
+                        listDatas.add("我是加载更多出来的数据!3");
+
+                        runOnUiThread(new Runnable() {
+
+                            @Override
+                            public void run() {
+                                myAdapter.notifyDataSetChanged();
+                                listview_refresh.onRefreshComplete();
+                            }
+                        });
+                    };
+
+                }.start();
+            }
         });
     }
 

@@ -8,6 +8,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
+import android.widget.AbsListView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -23,7 +24,7 @@ import java.util.logging.SimpleFormatter;
  * 包含下拉刷新的自定义listview
  */
 
-public class RefreshListView extends ListView {
+public class RefreshListView extends ListView implements AbsListView.OnScrollListener{
 
     //下拉刷新自定义的接口类
     OnRefreshListenr onRefreshListenr;
@@ -51,7 +52,10 @@ public class RefreshListView extends ListView {
     private TextView tv_title;
     //刷新描述
     private TextView tv_desc_last_refresh;
-    private String time;
+    private View mFooterView;
+    private int mFooterViewHeight;
+    // 是否正在加载更多
+    private boolean isLoadingMore;
 
     public RefreshListView(Context context) {
         super(context);
@@ -74,8 +78,23 @@ public class RefreshListView extends ListView {
      * 滚动监听
      */
     private void init() {
+        //头布局
       initHeaderView();
       initAnimation();
+      //脚布局，也就是加载更多的布局
+        initFooterView();
+        setOnScrollListener(this);
+    }
+
+    private void initFooterView() {
+        mFooterView = View.inflate(getContext(), R.layout.layout_footer_list, null);
+        mFooterView.measure(0, 0);
+        mFooterViewHeight = mFooterView.getMeasuredHeight();
+
+        // 隐藏脚布局
+        mFooterView.setPadding(0, -mFooterViewHeight, 0, 0);
+
+        addFooterView(mFooterView);
     }
 
     private void initHeaderView() {
@@ -235,18 +254,26 @@ public class RefreshListView extends ListView {
     }
 
     /**
+     * 刷新结束, 恢复界面效果
      * 执行外监听的方法后执行的代码
      * 也就是刷新完毕后执行的方法
      */
     public void onRefreshComplete() {
-        // 下拉刷新
-        currentState = PULL_TO_REFRESH;
-        tv_title.setText("下拉刷新"); // 切换文本
-        layout_header_list.setPadding(0, -measuredHeight, 0, 0);// 隐藏头布局
-        pb_loadding.setVisibility(View.INVISIBLE);
-        mArrowView.setVisibility(View.VISIBLE);
-        String time = getTime();
-        tv_desc_last_refresh.setText("最后刷新时间: " + time);
+        if(isLoadingMore){
+            // 加载更多
+            mFooterView.setPadding(0, -mFooterViewHeight, 0, 0);
+            isLoadingMore = false;
+        }else {
+            // 下拉刷新
+            // 下拉刷新
+            currentState = PULL_TO_REFRESH;
+            tv_title.setText("下拉刷新"); // 切换文本
+            layout_header_list.setPadding(0, -measuredHeight, 0, 0);// 隐藏头布局
+            pb_loadding.setVisibility(View.INVISIBLE);
+            mArrowView.setVisibility(View.VISIBLE);
+            String time = getTime();
+            tv_desc_last_refresh.setText("最后刷新时间: " + time);
+        }
     }
 
     public String getTime() {
@@ -260,9 +287,43 @@ public class RefreshListView extends ListView {
      */
     public interface OnRefreshListenr {
         void onRefresh();
+
+        void onLoadMore();
     }
 
     public void setRefreshListener(OnRefreshListenr onRefreshListenr) {
         this.onRefreshListenr = onRefreshListenr;
     }
+
+//    public static int SCROLL_STATE_IDLE = 0; // 空闲
+//    public static int SCROLL_STATE_TOUCH_SCROLL = 1; // 触摸滑动
+//    public static int SCROLL_STATE_FLING = 2; // 滑翔
+    @Override
+    public void onScrollStateChanged(AbsListView view, int scrollState) {
+        // 状态更新的时候
+        System.out.println("scrollState: " + scrollState);
+        if(isLoadingMore){
+            return; // 已经在加载更多.返回
+        }
+
+        // 最新状态是空闲状态, 并且当前界面显示了所有数据的最后一条. 加载更多
+        if(scrollState == SCROLL_STATE_IDLE && getLastVisiblePosition() >= (getCount() - 1)){
+            isLoadingMore = true;
+            System.out.println("scrollState: 开始加载更多");
+            mFooterView.setPadding(0, 0, 0, 0);
+
+            setSelection(getCount()); // 跳转到最后一条, 使其显示出加载更多.
+
+            if(onRefreshListenr != null){
+                onRefreshListenr.onLoadMore();
+            }
+        }
+    }
+
+    // 滑动过程
+    @Override
+    public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+
+    }
+
 }
