@@ -6,14 +6,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.BaseAdapter;
-import android.widget.ListView;
+import android.widget.Button;
 import android.widget.TextView;
+
+import com.hong.zyh.pulldownrefresh.ui.RefreshListView;
 
 import java.util.ArrayList;
 
 public class MainActivity extends Activity {
 
-    private ListView listview_refresh;
+    private RefreshListView listview_refresh;
     private ArrayList<String> listDatas;
 
     @Override
@@ -23,6 +25,11 @@ public class MainActivity extends Activity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_main);
         listview_refresh = findViewById(R.id.listview_refresh);
+
+        //增加一个listview头,一定要在适配器前面
+//        Button button = new Button(this);
+//        button.setText("head");
+//        listview_refresh.addHeaderView(button);
 
         listDatas = new ArrayList<>();
         for (int i =0;i<50;i++){
