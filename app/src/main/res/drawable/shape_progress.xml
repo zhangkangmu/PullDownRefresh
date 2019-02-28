@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rotate xmlns:android="http://schemas.android.com/apk/res/android"
+    android:fromDegrees="0"
+    android:pivotX="50%"
+    android:pivotY="50%"
+    android:toDegrees="360">
+
+    <!--shape:样式：环
+    innerRadius:内环半径
+    thickness：厚度
+    innerRadiusRatio:比例半径（innerRadius=宽/innerRadius）
+    useLevel:需要自己设置一个效果，一般是false，因为true会重新回到原点再转
+    -->
+    <shape xmlns:android="http://schemas.android.com/apk/res/android"
+        android:innerRadius="20dp"
+        android:shape="ring"
+        android:thickness="5dp"
+        android:useLevel="false">
+        <!--centerColor中心的颜色
+        endColor：末尾的颜色
+        type="sweep"：表示渐变
+        -->
+        <gradient
+            android:centerColor="#88FF0000"
+            android:endColor="#00000000"
+            android:type="sweep" />
+    </shape>
+</rotate>
